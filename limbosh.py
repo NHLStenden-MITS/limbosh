@@ -1,9 +1,9 @@
-""" A simple app that gives you food recommendations based on your mood using ChatGPT.
+""" The honeypot shell that traps you in a conversation with an LLM pretending to be a shell.
 
 Authors:
-    Saul Johnson (saul.a.johnson@gmail.com)
+    Saul Johnson (saul.johnson@nhlstenden.com)
 Since:
-    10/12/2023
+    28/02/2023
 """
 
 import json
