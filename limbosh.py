@@ -57,7 +57,7 @@ def push_context (content: str):
 # Add system prompt. This should give us a shell prompt.
 prompt = None
 with open(config['system_prompt']) as file:
-    prompt = push_context(file.read())
+    prompt = push_context(file.read()).strip('` ')
 
 
 # Loop as a shell until the user exits.
