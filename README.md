@@ -4,7 +4,9 @@ The honeypot shell that traps you in a conversation with an LLM pretending to be
 ![Logo](logo/png/logo-with-text/128.png)
 
 ## Overview
+Limbosh is named after the concept of [_Limbo_](https://en.wikipedia.org/wiki/Limbo), a liminal space where souls are held for eternity. In limbosh, likewise, the LLM will string attackers along for eternity (if it can!) in a fake shell, sandboxing them from interacting with the real system.
 
+![Screencast](screencast.svg)
 
 ## Prerequisites
 To run limbosh out of the box, you'll need a few things set up on your machine first:
