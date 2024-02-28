@@ -72,22 +72,25 @@ You can find the system prompts that seed the LLM context in `/system_prompts`. 
 If you wish to create additional system prompts, simply create a new text file in `/system_prompts` and change the `system_prompt` key in `config.json` to point to this instead.
 
 ## Deployment
-To deploy limbosh on a real Linux system, create a user (`sarah` in this example), enable SSH/Telnet login and change their default shell to Limbosh. If limbosh is installed in `/etc/limbosh`, for example:
+You may wish to run a containerized version of limbosh in order to test it out or deploy it practically as a honeypot (don't do this yet, see vulnerabilities section below). To do so, **first make sure you've configured OpenAI connectivity (see above)** then build the container like so:
 
 ```bash
-# Make script executable.
-chmod u+x /etc/limbosh/limbosh
-
-# Add limbosh symlink to /etc/bin.
-ln -s /bin/limbosh /etc/limbosh/limbosh
-chmod u+x /bin/limbosh
-
-# Add shell.
-cat '/bin/limbosh' >> /etc/shells
-
-# Change Sarah's shell to limbosh.
-chsh -s limbosh sarah
+docker build . -t limbosh
 ```
+
+Now run it, and keep it alive with `sleep infinity`:
+
+```bash
+docker run --rm -d -p 2222:22 limbosh
+```
+
+By default, a honey pot user `admin` (password also `admin`) will be created. SSH into it like so:
+
+```bash
+ssh -p 2222 admin@127.0.0.1
+```
+
+As soon as you connect and authenticate, you'll be dropped into a limbosh shell.
 
 ## Vulnerabilities
 It is possible to cause limbosh to deviate from its desired behaviour with a prompt injection attack. For example, try this in the shell:
