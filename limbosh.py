@@ -65,13 +65,15 @@ buffer = input(f'{prompt} ')
 while buffer != "exit":
     
     # Get LLM response to what's in the buffer.
-    reply = push_context(buffer).strip(' `')
+    reply = push_context(buffer).strip(' `\n\r')
+    reply_lines = reply.split('\n')
     
     # Reply may simply be a prompt, in which case update the prompt.
     if reply.endswith(('#', '$')):
         # Ask for more input using the prompt.
-        prompt = reply
-        buffer = input(f'{prompt} ')
+        prompt = reply_lines[-1].strip(' `\n\r')
+        reply_exluding_prompt = "\n".join(reply_lines[:-1])
+        buffer = input(f'{reply_exluding_prompt}\n{prompt} ')
     else:
         # Print reply then ask for more input using the prompt.
         buffer = input(f'{reply}\n{prompt} ')
