@@ -7,9 +7,10 @@ Since:
 """
 
 import json
-from typing import Iterable, List
-from openai import OpenAI
-from openai.types.chat import ChatCompletionMessageParam
+from typing import List
+
+from llm.large_language_model import LargeLanguageModel, ChatMessage
+from llm.openai_large_language_model import OpenaiLargeLanguageModel
 
 
 # Read config file.
@@ -18,27 +19,11 @@ with open('config.json') as file:
     config = json.load(file)
 
 # Create OpenAI client.
-client = OpenAI(api_key=config['openai_api_key'])
+llm: LargeLanguageModel = OpenaiLargeLanguageModel(config['openai_api_key'])
 
 # Persist messages in context.
-context: List[ChatCompletionMessageParam] = []
+context: List[ChatMessage] = []
 
-
-def ask_chatgpt (messsages: Iterable[ChatCompletionMessageParam], temperature=0.0001, model="gpt-4"):
-    """ Sends a list of chat completion messages to an OpenAI LLM and returns the content of the next message.
-    
-    Args:
-        messages (Iterable[ChatCompletionMessageParam]): Messages currently in context.
-        temperature (float): The temperature to use for the LLM.
-        model (str): The name of the model to use (e.g. 'gpt-3.5-turbo' or 'gpt-4').
-    Returns:
-        str: The LLM's response to the prompt.
-    """
-    return client.chat.completions.create(
-        model=model,
-        temperature=temperature,
-        messages=messsages
-    ).choices[0].message.content
     
 def push_context (content: str):
     """ Pushes an additional content message to the LLM context.
@@ -48,10 +33,10 @@ def push_context (content: str):
     Returns:
         str: The LLM's latest response.
     """
-    context.append({'role': 'user', 'content': content}) # Push content in role of user.
-    response = ask_chatgpt(context) # Get LLM response.
-    context.append({"role": "system", "content": response}) # Push LLM response to context.
-    return response
+    context.append(ChatMessage('user', content)) # Push content in role of user.
+    response = llm.get_next_message(context) # Get LLM response.
+    context.append(response) # Push LLM response to context.
+    return response.content
 
 
 # Add system prompt. This should give us a shell prompt.
