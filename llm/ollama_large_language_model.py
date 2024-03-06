@@ -1,10 +1,9 @@
-from typing import Iterable, Literal
+from typing import Literal
 from urllib.request import urlopen
 
 from openai import OpenAI
 
 from llm.openai_large_language_model import OpenaiLargeLanguageModel
-from .large_language_model import ChatMessage
 
 
 class OllamaLargeLanguageModel(OpenaiLargeLanguageModel):
