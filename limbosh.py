@@ -10,6 +10,7 @@ import json
 from typing import List
 
 from llm.large_language_model import LargeLanguageModel, ChatMessage
+from llm.ollama_large_language_model import OllamaLargeLanguageModel
 from llm.openai_large_language_model import OpenaiLargeLanguageModel
 
 
@@ -19,7 +20,8 @@ with open('config.json') as file:
     config = json.load(file)
 
 # Create OpenAI client.
-llm: LargeLanguageModel = OpenaiLargeLanguageModel(config['openai_api_key'])
+# llm: LargeLanguageModel = OpenaiLargeLanguageModel(config['openai_api_key'])
+llm: LargeLanguageModel = OllamaLargeLanguageModel(model="openchat")
 
 # Persist messages in context.
 context: List[ChatMessage] = []
