@@ -1,4 +1,5 @@
 {
+    "model_name": "openchat",
     "openai_api_key": "<your_api_key_here>",
     "system_prompt": "system_prompts/high_value_maritime_system.txt"
 }

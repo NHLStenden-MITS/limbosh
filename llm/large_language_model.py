@@ -30,13 +30,38 @@ class LargeLanguageModel(ABC):
         self.temperature = temperature
         
     @abstractmethod
-    def get_next_message (self, messsages: Iterable[ChatMessage]) -> ChatMessage:
+    def _check_connectivity (self) -> bool:
+        """ Checks whether connectivity to the LLM is present.
+
+        Returns:
+            bool: True if there is connectivity to the LLM, otherwise False.
+        """
+        raise NotImplementedError("Cannot check for connectivity to an abstract LLM.")
+    
+    @abstractmethod
+    def _get_next_message (self, messages: Iterable[ChatMessage]) -> ChatMessage:
         """ Sends a list of messages to an LLM and returns the next message suggested by the model.
-        
+
+        Override this method, rather than `get_next_message`, in concrete implementations of this class.
+
         Args:
             messages (Iterable[ChatMessage]): Messages currently in context.
         Returns:
             ChatMessage: The LLM's response to the prompt.
         """
         raise NotImplementedError("Cannot query an abstract LLM.")
+
+    def get_next_message (self, messages: Iterable[ChatMessage]) -> ChatMessage:
+        """ Sends a list of messages to an LLM and returns the next message suggested by the model.
+        
+        This method implementes a connectivity check and should not be overridden. Override `_get_next_message` instead.
+
+        Args:
+            messages (Iterable[ChatMessage]): Messages currently in context.
+        Returns:
+            ChatMessage: The LLM's response to the prompt.
+        """
+        if self._check_connectivity():
+            raise ConnectionError("Cannot connect to the LLM. Check your internet connection or ensure local service is running.")
+        return self._get_next_message(messages)
     

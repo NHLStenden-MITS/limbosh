@@ -1,3 +1,4 @@
+from urllib.request import urlopen
 from typing import Iterable, Literal
 
 from openai import OpenAI
@@ -8,7 +9,7 @@ class OpenaiLargeLanguageModel(LargeLanguageModel):
     """ Represents an OpenAI large language model (LLM).
     """
     
-    def __init__(self, api_key: str, temperature=0.0001, model: Literal["gpt-3.5-turbo"] | Literal["gpt-4"] = "gpt-4"):
+    def __init__(self, api_key: str, temperature=0.0001, model: Literal["gpt-3.5-turbo", "gpt-4"] = "gpt-4"):
         """ Initializes a new instance of an OpenAI large language model (LLM).
         
         Args:
@@ -21,7 +22,15 @@ class OpenaiLargeLanguageModel(LargeLanguageModel):
         self.model = model
         self.client = OpenAI(api_key=api_key)
         
-    def get_next_message (self, messsages: Iterable[ChatMessage]) -> ChatMessage:
+    def _check_connectivity(self) -> bool:
+        try:
+            with urlopen('https://api.openai.com/') as response:
+                response.read() # Ensure OpenAI API is available.
+                return True
+        except:
+            return False
+
+    def _get_next_message (self, messsages: Iterable[ChatMessage]) -> ChatMessage:
         # Format messages for OpenAI API.
         messages = list(map(lambda message: {'role': message.role, 'content': message.content}, messsages))
         
