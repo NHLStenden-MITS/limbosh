@@ -78,7 +78,7 @@ You may wish to run a containerized version of limbosh in order to test it out o
 docker build . -t limbosh
 ```
 
-Now run it, and keep it alive with `sleep infinity`:
+Now run it, you'll be dropped into limbosh automatically:
 
 ```bash
 docker run --rm -d -p 2222:22 limbosh

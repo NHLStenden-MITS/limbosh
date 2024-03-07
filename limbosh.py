@@ -19,7 +19,7 @@ with open('config.json') as file:
     config = json.load(file)
 
 # Create LLM instance.
-llm: LargeLanguageModel =LargeLanguageModelFactory.get(config)
+llm: LargeLanguageModel = LargeLanguageModelFactory.get(config)
 
 # Persist messages in context.
 context: List[ChatMessage] = []
