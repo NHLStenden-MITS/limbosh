@@ -41,9 +41,9 @@ pip install -r requirements.txt
 ```
 
 ### Configuring OpenAI Connectivity
-This first version of limbosh uses the API provided by OpenAPI to access and query their LLMs. Connectivity to other LLMs is not currently supported.
+The most performant way to run Limbosh is by outsourcing running the LLM to the OpenAI API.
 
-For this reason, you'll to start by signing in to your [OpenAI platform account](https://platform.openai.com`), charging your account with credits, and creating an API key.
+If you want to do this, you'll need to start by signing in to your [OpenAI platform account](https://platform.openai.com`), charging your account with credits, and creating an API key.
 
 First, copy the `config.json.example` file to `config.json`. Do not commit thie new file to source control (it's in `.gitignore` because it will contain your secret API key).
 
@@ -51,7 +51,10 @@ First, copy the `config.json.example` file to `config.json`. Do not commit thie 
 cp config.json.example config.json
 ```
 
-Now, open up `config.json` in your favourite text editor and paste your API key in place of `<your_api_key_here>`.
+Now, open up `config.json` in your favourite text editor and paste your API key in place of `<your_api_key_here>`. Set the `model` field to either:
+
+* `gpt-3.5-turbo` for GPT 3.5 (faster and cheaper, not as convincing)
+* `gpt-4` for GPT 4.0 (slower and more expensive but with very convincing output)
 
 You're now ready to run the program! Either call the script with Python directly (make sure you're in your virtual environment):
 
@@ -66,6 +69,29 @@ Or alternatively (on Mac or Linux), use the shortcut:
 ./limbosh
 ```
 
+### Running Against a Local LLM using Ollama
+Limbosh also supports running against local LLMs using [Ollama](https://ollama.com/). To do this, you'll first need to install Ollama and pull your preferred LLM. You can do this like so for `openchat` for example:
+
+```bash
+ollama pull openchat
+```
+
+This will start the Ollama daemon process automatically, with its API listening on `localhost:11434`. Now, set up your `config.json` file like so. Note that `openai_api_key` is not needed for local LLM deployments on Ollama.
+
+```json
+{
+    "model_name": "openchat",
+    "openai_api_key": "not-needed-for-local-llms",
+    "system_prompt": "system_prompts/high_value_maritime_system.txt",
+    "ollama": {
+        "hostname": "localhost",
+        "port": 11434
+    }
+}
+```
+
+Ollama has [an extensive model library](https://ollama.com/library) that you can install and try out with one `ollama pull` command.
+
 ### Configuring System Prompts
 You can find the system prompts that seed the LLM context in `/system_prompts`. The only system prompt included currently instructs the LLM to act as a bash shell on a high-value maritime system.
 
@@ -78,19 +104,50 @@ You may wish to run a containerized version of limbosh in order to test it out o
 docker build . -t limbosh
 ```
 
-Now run it, you'll be dropped into limbosh automatically:
+Now run it, you'll be dropped into limbosh automatically. Note that forwarding port `11434` is only necessary if you're running an LLM locally on Ollama:
 
 ```bash
-docker run --rm -d -p 2222:22 limbosh
+docker run --rm -d -p 2222:22 -p 11434:11434 limbosh
 ```
 
-By default, a honey pot user `admin` (password also `admin`) will be created. SSH into it like so:
+By default, a honeypot user `admin` (password also `admin`) will be created. SSH into it like so:
 
 ```bash
 ssh -p 2222 admin@127.0.0.1
 ```
 
 As soon as you connect and authenticate, you'll be dropped into a limbosh shell.
+
+### Using Docker Compose
+If you'd like a complete setup out of the box, you can use Docker Compose. This involves a few more steps but keeps complexity to a minimum.
+
+First, configure your `config.json` and get the Limbosh Docker Compose environment running (make sure to pass `--build` to carry across any config changes you've made):
+
+```bash
+docker compose up --build
+```
+
+This will bring up 3 containers:
+
+* `limbosh-honeypot`: The Limbosh honeypot shell container. Port 22 is forwarded to port 2222 on the local machine, with honeypot username/password `admin:admin`.
+* `ollama`: The Ollama container. Note that GPU acceleration is not set up (and is not even supported on Windows) so this will be _extremely slow_.
+* `ollama-webui`: The Ollama web UI. You'll need to use this to install a model to query.
+
+Once everything is up and running, browse to `http://localhost:3000` in your browser. After creating an account (it's 100% local), you'll find yourself in the Ollama web UI, which looks a bit like the ChatGPT UI.
+
+![The Ollama web UI](screenshots/ollama_web_ui.png)
+
+Click on your profile in the bottom left and browse to `Settings > Models`. From here, install whichever model you configured via your `config.json` file (`openchat` in this example):
+
+![Downloading a model in the Ollama web UI](screenshots/ollama_web_ui_dl_model.png)
+
+This can take a while, so be patient. Once it's done, you can run the usual command to SSH into the honeypot:
+
+```bash
+ssh -p 2222 admin@127.0.0.1
+```
+
+Remember, on Windows, GPU acceleration is not available for Ollama on Docker. This means the CPU has to handle the full load of running the LLM, and this is very slow. You might have to wait a minute or more between entering a command and receiving something back!
 
 ## Vulnerabilities
 It is possible to cause limbosh to deviate from its desired behaviour with a prompt injection attack. For example, try this in the shell:
