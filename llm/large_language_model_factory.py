@@ -19,11 +19,20 @@ class LargeLanguageModelFactory():
         """
         model_name = configuration['model_name']
         if model_name == 'openchat':
-            return OllamaLargeLanguageModel(model='openchat')
+            return OllamaLargeLanguageModel(
+                hostname=configuration['ollama']['hostname'], 
+                port=configuration['ollama']['port'],
+                model='openchat')
         if model_name == 'gemma':
-            return OllamaLargeLanguageModel(model='gemma')
+            return OllamaLargeLanguageModel(
+                hostname=configuration['ollama']['hostname'], 
+                port=configuration['ollama']['port'],
+                model='gemma')
         if model_name == 'llama2':
-            return OllamaLargeLanguageModel(model='llama2')
+            return OllamaLargeLanguageModel(
+                hostname=configuration['ollama']['hostname'], 
+                port=configuration['ollama']['port'],
+                model='llama2')
         if model_name == 'gpt-3.5-turbo':
             return OpenaiLargeLanguageModel(model='gpt-3.5-turbo')
         if model_name == 'gpt-4':
