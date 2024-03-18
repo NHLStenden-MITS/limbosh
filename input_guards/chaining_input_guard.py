@@ -17,9 +17,8 @@ class ChainingInputGuard(PassthroughInputGuard):
 
         # Construct chain.
         if len(chain) > 0:
-            first_link = chain[0]
+            first_link = self
             latest_link = first_link
             for guard in chain:
                 latest_link.next = guard
                 latest_link = guard # Remember latest link.
-            self.next = first_link # Set head of chain.

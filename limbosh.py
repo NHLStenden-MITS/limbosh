@@ -8,8 +8,9 @@ Since:
 
 import json
 from typing import List
-from input_transformers.delimiting_input_transformer import DelimitingInputTransformer
-from input_transformers.passthrough_input_transformer import PassthroughInputTransformer
+from input_guards.input_guard_factory import InputGuardFactory
+from input_transformers.input_transformer import InputTransformer
+from input_transformers.input_transformer_factory import InputTransformerFactory
 
 from llm.large_language_model import LargeLanguageModel, ChatMessage
 from llm.large_language_model_factory import LargeLanguageModelFactory
@@ -23,8 +24,11 @@ with open('config.json') as file:
 # Create LLM instance.
 llm: LargeLanguageModel = LargeLanguageModelFactory.get(config)
 
+# Input guards.
+input_guard: InputTransformer = InputGuardFactory.get(config)
+
 # Input transformers.
-input_transformer = PassthroughInputTransformer()
+input_transformer: InputTransformer = InputTransformerFactory.get(config)
 
 # Persist messages in context.
 context: List[ChatMessage] = []

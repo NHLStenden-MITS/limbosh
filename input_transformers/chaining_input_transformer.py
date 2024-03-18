@@ -17,9 +17,8 @@ class ChainingInputTransformer(PassthroughInputTransformer):
 
         # Construct chain.
         if len(chain) > 0:
-            first_link = chain[0]
+            first_link = self
             latest_link = first_link
             for transformer in chain:
                 latest_link.next = transformer
                 latest_link = transformer # Remember latest link.
-            self.next = first_link # Set head of chain.
