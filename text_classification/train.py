@@ -12,6 +12,7 @@ from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.linear_model import SGDClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.dummy import DummyClassifier
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix, classification_report, accuracy_score
@@ -21,7 +22,7 @@ import pandas as pd
 
 
 @click.command()
-@click.option('--model', type=click.Choice(['nb', 'svm', 'rf']), default='nb', help='The type of model to train.')
+@click.option('--model', type=click.Choice(['nb', 'svm', 'rf', 'dummy']), default='nb', help='The type of model to train.')
 @click.option('--cross-val', type=click.INT, default=5, help='Number of cross-validation folds to use.')
 @click.option('--ngram-min', type=click.INT, default=1, help='The lower bound of the ngram range to use for training.')
 @click.option('--ngram-max', type=click.INT, default=1, help='The upper bound of the ngram range to use for training.')
@@ -51,6 +52,7 @@ def main(
     training_dataset = pd.read_parquet(train)
     x_train = training_dataset['text']
     y_train = training_dataset['label']
+    print()
 
     testing_dataset = pd.read_parquet(test)
     x_test = testing_dataset['text']
@@ -62,6 +64,8 @@ def main(
         classifier = SGDClassifier() # Linear SVM.
     if model == 'svm':
         classifier = RandomForestClassifier() # Random forest.
+    if model == 'dummy':
+        classifier = DummyClassifier() # Dummy classifier (for obtaining baseline).
 
     # Create pipeline.
     pipeline = Pipeline([('vectorizer', CountVectorizer(ngram_range=(ngram_min, ngram_max))), # Convert to token count matrix.
@@ -76,7 +80,7 @@ def main(
 
     # K-fold cross-validation.
     print('CROSS-VALIDATION ===============')
-    print(cross_val_score(pipeline, x_train, y_train, cv=cross_val))
+    print(cross_val_score(pipeline, x_train, y_train, cv=cross_val), '\n')
 
     # Confusion matrix, how many classification errors did we make?
     print('CONFUSION MATRIX ===============')
@@ -85,7 +89,10 @@ def main(
 
     # Classification report, what's our overall accuracy, support, F1 score and so on?
     print('CLASSIFICATION REPORT ==========')
-    print(classification_report(y_test, y_pred), '\n')
+    if model != 'dummy':
+        print(classification_report(y_test, y_pred), '\n')
+    else:
+        print('No classification report available.\n')
 
     # What's our overall accuracy?
     print('OVERALL ACCURACY ===============')
