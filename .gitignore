@@ -167,3 +167,8 @@ config.json
 
 # Volumes
 /ollama
+
+# Data
+*.parquet
+*.model
+*.pickle

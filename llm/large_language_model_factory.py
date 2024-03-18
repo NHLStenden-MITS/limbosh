@@ -28,13 +28,22 @@ class LargeLanguageModelFactory():
                 hostname=configuration['ollama']['hostname'], 
                 port=configuration['ollama']['port'],
                 model='gemma')
+        if model_name == 'mistral':
+            return OllamaLargeLanguageModel(
+                hostname=configuration['ollama']['hostname'], 
+                port=configuration['ollama']['port'],
+                model='mistral')
         if model_name == 'llama2':
             return OllamaLargeLanguageModel(
                 hostname=configuration['ollama']['hostname'], 
                 port=configuration['ollama']['port'],
                 model='llama2')
         if model_name == 'gpt-3.5-turbo':
-            return OpenaiLargeLanguageModel(model='gpt-3.5-turbo')
+            return OpenaiLargeLanguageModel(
+                api_key=configuration['openai_api_key'], 
+                model='gpt-3.5-turbo')
         if model_name == 'gpt-4':
-            return OpenaiLargeLanguageModel(model='gpt-4')
+            return OpenaiLargeLanguageModel(
+                api_key=configuration['openai_api_key'],
+                model='gpt-4')
         raise NameError(f'Model "{model_name}" unknown or not supported.')

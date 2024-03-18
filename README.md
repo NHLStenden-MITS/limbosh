@@ -160,6 +160,7 @@ You'll notice that this "prompt injection" attack causes the LLM to deviate from
 
 Mitigating prompt injection attacks such as this is possible, but non-trivial. We might, for example:
 
+* Clearly delimit user input so the LLM has some chance of distinguishing user input for itself.
 * Deploy an additional LLM context to check that the input to the shell is a valid bash command.
 * Deploy another additional LLM context to check the LLM's output to ensure that it has not deviated from its instructions.
 * Deploy a simple discriminative text classification model (e.g. a random forest, support vector machine or even a naive bayes classifier) to detect prompt injection attacks before they pass in to any LLM context.
