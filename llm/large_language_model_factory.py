@@ -13,6 +13,7 @@ class LargeLanguageModelFactory():
         'gemma',
         'mistral',
         'llama2',
+        'tinyllama',
         'qwen',
         'mixtral',
     ]

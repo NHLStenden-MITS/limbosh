@@ -6,6 +6,7 @@ Since:
     28/02/2023
 """
 
+from string import Template
 import json
 from typing import List
 from input_guards.input_guard_factory import InputGuardFactory
@@ -53,7 +54,8 @@ def push_context (content: str, transform: bool = True):
 # Add system prompt. This should give us a shell prompt.
 prompt = None
 with open(config['system_prompt']) as file:
-    prompt = push_context(file.read(), transform=False).strip('` ')
+    template = Template(file.read())
+    prompt = push_context(template.substitute(config['prompt']), transform=False).strip('` ')
 
 
 # Loop as a shell until the user exits.
