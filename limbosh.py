@@ -7,9 +7,11 @@ Since:
 """
 
 import os
-from string import Template, whitespace
+import platform
+from string import Template
 import json
 from typing import List
+from input_guards.input_guard import InputGuard, InputGuardFinding
 from input_guards.input_guard_factory import InputGuardFactory
 from input_transformers.input_transformer import InputTransformer
 from input_transformers.input_transformer_factory import InputTransformerFactory
@@ -32,13 +34,18 @@ prompt: str | None = None
 llm: LargeLanguageModel = LargeLanguageModelFactory.get(config)
 
 # Input guards.
-input_guard: InputTransformer = InputGuardFactory.get(config)
+input_guard: InputGuard = InputGuardFactory.get(config)
 
 # Input transformers.
 input_transformer: InputTransformer = InputTransformerFactory.get(config)
 
 # Output transformers.
 def update_prompt (new_prompt: str):
+    """ An event handler invoked by the prompt capturing output transformer when the prompt changes.
+
+    Args:
+        new_prompt (str): The new prompt.
+    """
     global prompt
     prompt = new_prompt
 output_transformer: OutputTransformer = OutputTransformerFactory.get(config, prompt_changed_callback=update_prompt)
@@ -47,20 +54,31 @@ output_transformer: OutputTransformer = OutputTransformerFactory.get(config, pro
 context: List[ChatMessage] = []
 
     
-def push_context (content: str, transform_input: bool = True):
+def push_context (content: str, transform_input: bool = True, transform_output = True):
     """ Pushes an additional content message to the LLM context.
     
     Args:
         content (str): The content to push.
         transform_input (bool): Whether to transform the content prior to pushing it to the context (default true).
+        transform_output (bool): Whether to transform LLM output prior to pushing it to the context (default true).
     Returns:
         str: The LLM's latest response.
     """
+    # Transform input if specified.
     final_content = input_transformer.transform(content) if transform_input else content
-    context.append(ChatMessage('user', final_content)) # Push content in role of user.
-    response = llm.get_next_message(context) # Get LLM response.
-    response.content = output_transformer.transform(response.content)
-    context.append(response) # Push LLM response to context.
+
+     # Push content in role of user.
+    context.append(ChatMessage('user', final_content))
+
+    # Get LLM response.
+    response = llm.get_next_message(context)
+
+    # Transform output if specified.
+    if transform_output:
+        response.content = output_transformer.transform(response.content)
+
+    # Push LLM response to context and return.
+    context.append(response)
     return response.content
 
 
@@ -72,20 +90,26 @@ with open(config['system_prompt']) as file:
 
 
 # Loop as a shell until the user exits.
-buffer = input(f'{prompt} ')
-while buffer != "exit":
-    
-    # Skip empty inputs.
-    if len(buffer.strip(whitespace)) == 0:
-        buffer = input(f'{prompt} ')
-        continue
+reply = None
+while True:
 
-    if buffer == 'clear':
-        os.system('cls')
-        buffer = input(f'{prompt} ')
-    else:
+    # Print output (if any) and read next command into buffer.
+    buffer = input(f'{reply if reply is not None else ''}{prompt} ')
+    
+    # Run input through guard.
+    input_guard_finding = input_guard.detect(buffer)
+    if input_guard_finding == InputGuardFinding.OK:
+
         # Get LLM response to what's in the buffer.
         reply = push_context(buffer)
+    elif input_guard_finding == InputGuardFinding.SPECIAL_COMMAND_EXIT:
 
-        # Print response and show prompt ready for next input.
-        buffer = input(f'{reply}{prompt} ')
+        # Break out of loop (program will terminate).
+        break
+    elif input_guard_finding == InputGuardFinding.SPECIAL_COMMAND_CLEAR:
+
+        # Clear terminal (platform-dependent).
+        if platform.system() == 'Windows':
+            os.system('cls')
+        else:
+            os.system('clear')

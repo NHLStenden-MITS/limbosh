@@ -1,4 +1,4 @@
-from input_guards.input_guard import InputGuard
+from input_guards.input_guard import InputGuard, InputGuardFinding
 
 
 class PassthroughInputGuard(InputGuard):
@@ -6,5 +6,5 @@ class PassthroughInputGuard(InputGuard):
     """
 
     def _detect(self, message_content: str) -> bool:
-        return False
+        return InputGuardFinding.OK
     
