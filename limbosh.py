@@ -6,7 +6,8 @@ Since:
     28/02/2023
 """
 
-from string import Template
+import os
+from string import Template, whitespace
 import json
 from typing import List
 from input_guards.input_guard_factory import InputGuardFactory
@@ -66,28 +67,25 @@ def push_context (content: str, transform_input: bool = True):
 # Input system prompt.
 with open(config['system_prompt']) as file:
     template = Template(file.read())
-    push_context(template.substitute(config['prompt']), transform_input=False)
+    filled_prompt = template.substitute(config['prompt']) # Substitute template variables.
+    push_context(filled_prompt, transform_input=False)
 
 
 # Loop as a shell until the user exits.
 buffer = input(f'{prompt} ')
 while buffer != "exit":
     
-    # Get LLM response to what's in the buffer.
-    reply = push_context(buffer)
+    # Skip empty inputs.
+    if len(buffer.strip(whitespace)) == 0:
+        buffer = input(f'{prompt} ')
+        continue
 
-    # Sometimes the LLM echoes back our input. Remove this.
-    if reply.startswith(buffer):
-        reply = reply[len(buffer):]
-
-    reply_lines = reply.split('\n')
-    
-    # Reply may simply be a prompt, in which case update the prompt.
-    if reply.endswith(('#', '$')):
-        # Ask for more input using the prompt.
-        prompt = reply_lines[-1]
-        reply_exluding_prompt = "\n".join(reply_lines[:-1])
-        buffer = input(f'{reply_exluding_prompt}\n{prompt} ')
+    if buffer == 'clear':
+        os.system('cls')
+        buffer = input(f'{prompt} ')
     else:
-        # Print reply then ask for more input using the prompt.
-        buffer = input(f'{reply}\n{prompt} ')
+        # Get LLM response to what's in the buffer.
+        reply = push_context(buffer)
+
+        # Print response and show prompt ready for next input.
+        buffer = input(f'{reply}{prompt} ')

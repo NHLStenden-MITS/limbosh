@@ -1,6 +1,7 @@
 from typing import Callable, Dict, Literal, Optional
 
 from output_transformers.chaining_output_transformer import ChainingOutputTransformer
+from output_transformers.line_breaking_output_transformer import LineBreakingOutputTransformer
 from output_transformers.output_transformer import OutputTransformer
 from output_transformers.passthrough_output_transformer import PassthroughOutputTransformer
 from output_transformers.prompt_capturing_output_transformer import PromptCapturingOutputTransformer
@@ -12,11 +13,13 @@ class OutputTransformerFactory():
     """
 
     @staticmethod
-    def construct(output_transformer_type: Literal['passthrough', 'stripping']) -> OutputTransformer:
+    def construct(output_transformer_type: Literal['passthrough', 'stripping', 'line_breaking']) -> OutputTransformer:
         if output_transformer_type == 'passthrough':
             return PassthroughOutputTransformer()
         if output_transformer_type == 'stripping':
             return StrippingOutputTransformer()
+        if output_transformer_type == 'line_breaking':
+            return LineBreakingOutputTransformer()
         raise NameError(f'Output transformer "{output_transformer_type}" unknown or not supported.')
 
     @classmethod

@@ -6,5 +6,6 @@ class PassthroughOutputTransformer(OutputTransformer):
     """
 
     def _transform(self, message_content: str) -> str:
+        # Return input unchanged.
         return message_content
     

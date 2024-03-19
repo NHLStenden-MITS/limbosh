@@ -12,7 +12,7 @@ class InputTransformer(ABC):
         self.next = next
         
     @abstractmethod
-    def _transform (self, message_content: str) -> bool:
+    def _transform (self, message_content: str) -> str:
         """ Uses this input transformer to transform the given message.
         
         Override this method, rather than `transform`, in concrete implementations of this class.
@@ -24,7 +24,7 @@ class InputTransformer(ABC):
         """
         raise NotImplementedError("Cannot use an abstract input transformer.")
 
-    def transform (self, message_content: str) -> bool:
+    def transform (self, message_content: str) -> str:
         """ Uses this input transformer to transform the given message.
         
         This method implementes a chain of responsibility pattern and should not be overridden. Override `_transform` instead.
