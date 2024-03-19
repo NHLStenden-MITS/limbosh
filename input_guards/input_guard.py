@@ -28,7 +28,7 @@ class InputGuard(ABC):
     """ Represents an abstract input guard.
     """
     
-    def __init__(self, next: Optional['InputGuard']):
+    def __init__(self, next: Optional['InputGuard'] = None):
         """ Abstract constructor for an input guard.
         """
         self.next = next

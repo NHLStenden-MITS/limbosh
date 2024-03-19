@@ -90,18 +90,17 @@ with open(config['system_prompt']) as file:
 
 
 # Loop as a shell until the user exits.
-reply = None
 while True:
 
     # Print output (if any) and read next command into buffer.
-    buffer = input(f'{reply if reply is not None else ''}{prompt} ')
+    buffer = input(f'{prompt} ')
     
     # Run input through guard.
     input_guard_finding = input_guard.detect(buffer)
     if input_guard_finding == InputGuardFinding.OK:
 
         # Get LLM response to what's in the buffer.
-        reply = push_context(buffer)
+        print(push_context(buffer), end='')
     elif input_guard_finding == InputGuardFinding.SPECIAL_COMMAND_EXIT:
 
         # Break out of loop (program will terminate).
