@@ -23,21 +23,24 @@ class PromptCapturingOutputTransformer(OutputTransformer):
 
         # Seek backwards until we find non-empty line. This should be the prompt line.
         offset = -1
-        while len(message_content_lines[offset].strip(whitespace)) == 0:
+        while abs(offset) < len(message_content_lines) and len(message_content_lines[offset].strip(whitespace)) == 0:
             offset -= 1
-            if abs(offset) > len(message_content_lines) and self.prompt is None:
-                raise RuntimeError('LLM has deviated. Output consisted only of whitespace, so could not seek prompt.')
         prompt_line = message_content_lines[offset]
 
-        # LLM must always end its output with a prompt.
-        if not prompt_line.endswith('$') and self.prompt is None:
-            raise RuntimeError(f'LLM has deviated. Output did not end with a prompt (instead, last line was "{prompt_line}").')
-        
-        # Update prompt and trigger callback if one was provided.
-        if prompt_line != self.prompt:
-            if self.callback is not None:
-                self.callback(prompt_line)
-            self.prompt = prompt_line
+        # We must be able to populate the prompt buffer.
+        if prompt_line.endswith('$'):
 
-        # Return message without prompt.
-        return '\n'.join(message_content_lines[:offset])
+            # Update prompt and trigger callback if one was provided.
+            if prompt_line != self.prompt:
+                if self.callback is not None:
+                    self.callback(prompt_line)
+                self.prompt = prompt_line
+
+            # Return message without prompt.
+            return '\n'.join(message_content_lines[:offset])
+        elif self.prompt is None:
+            raise RuntimeError(f'LLM has deviated. Output did not end with a prompt and there is no prompt currently in the buffer. Instead, last line was: "{prompt_line}").')
+        
+        # No prompt in message, but we have one in the buffer.
+        return message_content
+    
