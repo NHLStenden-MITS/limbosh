@@ -32,7 +32,7 @@ import pandas as pd
 @click.option('--confusion-matrix-mode', type=click.Choice(['show', 'save', 'skip']), default='skip', help='What to do with the resulting confusion matrix.')
 @click.option('--confusion-matrix-output', type=click.STRING, help='The file in which to save the rendered confusion matrix.')
 def main(
-    model: Literal['nb', 'svm', 'rf'],
+    model: Literal['nb', 'svm', 'rf', 'dummy'],
     cross_val: int,
     ngram_min: int,
     ngram_max: int,
@@ -52,14 +52,13 @@ def main(
     training_dataset = pd.read_parquet(train)
     x_train = training_dataset['text']
     y_train = training_dataset['label']
-    print()
 
     testing_dataset = pd.read_parquet(test)
     x_test = testing_dataset['text']
     y_test = testing_dataset['label']
 
     # Choose classifier depending on command-line args.
-    classifier = MultinomialNB() # Multinomial naive bayes (default).
+    classifier = MultinomialNB() # Multinomial Naive Bayes (default).
     if model == 'rf':
         classifier = SGDClassifier() # Linear SVM.
     if model == 'svm':
@@ -103,7 +102,7 @@ def main(
     disp.plot()
     if confusion_matrix_mode == 'show':
         plt.show()
-    elif confusion_matrix == 'save':
+    elif confusion_matrix_mode == 'save':
         plt.savefig(fname=confusion_matrix_output)
 
     # Pickle trained model to file for later use.
