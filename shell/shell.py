@@ -1,4 +1,3 @@
-from abc import ABC
 import os
 import platform
 import sys
@@ -15,8 +14,11 @@ from llm.large_language_model_factory import LargeLanguageModelFactory
 from output_transformers.output_transformer_factory import OutputTransformerFactory
 from prompting.prompt_factory import PromptFactory
 
+
 @inject
 class Shell():
+    """ Represents an LLM-powered honeypot shell.
+    """
 
     def __init__(
             self,
@@ -26,13 +28,27 @@ class Shell():
             input_guard_factory: InputGuardFactory, 
             input_transformer_factory: InputTransformerFactory,
             output_transformer_factory: OutputTransformerFactory):
+        """ Intitializes a new instance of an LLM-powered honeypot shell.
+
+        Args:
+            config_provider (ConfigProvider): The application-level configuration provider.
+            large_language_model_factory (LargeLanguageModelFactory): The LLM factory to use to generate an LLM instance.
+            prompt_factory (PromptFactory): The prompt factory to use to generate the system prompt.
+            input_guard_factory (InputGuardFactory): The input guard factory to generate an input guard for the LLM.
+            input_transformer_factory (InputGuardFactory): The input transformer factory to generate an input transformer for the LLM.
+            output_transformer_factory (OutputTransformerFactory): The output transformer factory to generate an output transformer for the LLM.
+        """
         self.config_provider = config_provider.get()
         self.large_language_model = large_language_model_factory.get()
         self.system_prompt = prompt_factory.get(self.config_provider.shell)
         self.input_guard = input_guard_factory.get()
         self.input_transformer = input_transformer_factory.get()
         self.output_transformer = output_transformer_factory.get(lambda new_prompt: self.update_prompt(new_prompt))
+
+        # Set default prompt.
         self.prompt = '$'
+
+        # Initialize context to empty.
         context: List[ChatMessage] = []
         self.context = context
 
@@ -72,7 +88,9 @@ class Shell():
         self.prompt = new_prompt
 
     def run(self):
-        
+        """ Enters the shell.
+        """
+
         # Input system prompt.
         self.push_context(self.system_prompt, transform_input=False)
 
