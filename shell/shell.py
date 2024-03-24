@@ -11,6 +11,8 @@ from input_guards.input_guard_factory import InputGuardFactory
 from input_transformers.input_transformer_factory import InputTransformerFactory
 from llm.large_language_model import ChatMessage
 from llm.large_language_model_factory import LargeLanguageModelFactory
+from output_guards.output_guard import OutputGuardFinding
+from output_guards.output_guard_factory import OutputGuardFactory
 from output_transformers.output_transformer_factory import OutputTransformerFactory
 from prompting.prompt_factory import PromptFactory
 
@@ -27,6 +29,7 @@ class Shell():
             prompt_factory: PromptFactory,
             input_guard_factory: InputGuardFactory, 
             input_transformer_factory: InputTransformerFactory,
+            output_guard_factory: OutputGuardFactory,
             output_transformer_factory: OutputTransformerFactory):
         """ Intitializes a new instance of an LLM-powered honeypot shell.
 
@@ -36,6 +39,7 @@ class Shell():
             prompt_factory (PromptFactory): The prompt factory to use to generate the system prompt.
             input_guard_factory (InputGuardFactory): The input guard factory to generate an input guard for the LLM.
             input_transformer_factory (InputGuardFactory): The input transformer factory to generate an input transformer for the LLM.
+            output_guard_factory (OutputGuardFactory): The output guard factory to generate an output guard for the LLM.
             output_transformer_factory (OutputTransformerFactory): The output transformer factory to generate an output transformer for the LLM.
         """
         self.config_provider = config_provider.get()
@@ -43,6 +47,7 @@ class Shell():
         self.system_prompt = prompt_factory.get(self.config_provider.shell)
         self.input_guard = input_guard_factory.get()
         self.input_transformer = input_transformer_factory.get()
+        self.output_guard = output_guard_factory.get()
         self.output_transformer = output_transformer_factory.get(lambda new_prompt: self.update_prompt(new_prompt))
 
         # Set default prompt.
@@ -105,7 +110,16 @@ class Shell():
             if input_guard_finding == InputGuardFinding.OK:
 
                 # Get LLM response to what's in the buffer.
-                print(self.push_context(buffer), end='')
+                output = self.push_context(buffer)
+                output_guard_finding = self.output_guard.detect(output) # Run through output guard.
+                if output_guard_finding == OutputGuardFinding.OK:
+
+                    # All OK, print output.
+                    print(output, end='')
+                elif output_guard_finding == OutputGuardFinding.PROBABLE_DEVIATION:
+                    
+                    # Simply force a disconnect (context will reset).
+                    sys.exit(0)
             elif input_guard_finding == InputGuardFinding.SPECIAL_COMMAND_EXIT:
 
                 # Terminate program.

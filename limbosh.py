@@ -15,6 +15,7 @@ from config.json_schema_config_validator import JsonSchemaConfigValidator
 from input_guards.input_guard_factory import InputGuardFactory
 from input_transformers.input_transformer_factory import InputTransformerFactory
 from llm.large_language_model_factory import LargeLanguageModelFactory
+from output_guards.output_guard_factory import OutputGuardFactory
 from output_transformers.output_transformer_factory import OutputTransformerFactory
 from prompting.prompt_factory import PromptFactory
 from shell.shell import Shell
@@ -33,6 +34,7 @@ di[ConfigProvider] = FileBasedConfigProvider()
 di[InputTransformerFactory] = InputTransformerFactory()
 di[InputGuardFactory] = InputGuardFactory()
 di[LargeLanguageModelFactory] = LargeLanguageModelFactory()
+di[OutputGuardFactory] = OutputGuardFactory()
 di[OutputTransformerFactory] = OutputTransformerFactory()
 di[PromptFactory] = PromptFactory()
 

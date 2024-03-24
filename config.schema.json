@@ -25,6 +25,20 @@
                 }
             ]
         },
+        "output_guards": {
+            "type": "array",
+            "items": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "string"
+                }
+            ]
+        },
         "input_transformers": {
             "type": "array",
             "items": [
