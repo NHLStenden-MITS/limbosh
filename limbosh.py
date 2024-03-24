@@ -20,11 +20,14 @@ from prompting.prompt_factory import PromptFactory
 from shell.shell import Shell
 
 
+# Initialize config file paths.
 di['config_json_schema_file_path'] = './config.schema.json'
 di['config_file_path'] = './config.json'
 
+# Create application logger.
 di[Logger] = getLogger(__name__)
 
+# Register all injected services.
 di[ConfigValidator] = JsonSchemaConfigValidator()
 di[ConfigProvider] = FileBasedConfigProvider()
 di[InputTransformerFactory] = InputTransformerFactory()
@@ -33,4 +36,5 @@ di[LargeLanguageModelFactory] = LargeLanguageModelFactory()
 di[OutputTransformerFactory] = OutputTransformerFactory()
 di[PromptFactory] = PromptFactory()
 
+# Initialize and run generative honeypot shell.
 di[Shell].run()
