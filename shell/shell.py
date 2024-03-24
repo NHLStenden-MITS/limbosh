@@ -120,4 +120,4 @@ class Shell():
             elif input_guard_finding == InputGuardFinding.PROBABLE_PROMPT_INJECTION:
 
                 # Do not allow dangerous input to proceed to LLM.
-                print(f'{buffer.split(' ')[0]}: Command not found', end='')
+                print(f'{buffer.split(' ')[0]}: Command not found')
