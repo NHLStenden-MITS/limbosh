@@ -7,8 +7,7 @@ from typing import Literal, Optional
 import click
 import joblib
 
-from sklearn.datasets import load_files
-from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.model_selection import cross_val_score
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.linear_model import SGDClassifier
 from sklearn.ensemble import RandomForestClassifier
@@ -43,12 +42,7 @@ def main(
     confusion_matrix_output: Optional[str]):
     """ The main function/entrypoint for the script.
     """
-    # Load files in data directory, taking subdirectories as classes.
-    # dataset = load_files('./data', load_content=True, encoding='UTF-8', decode_error='replace')
-
-    # Split into testing and training data.
-    # x_train, x_test, y_train, y_test = train_test_split(dataset.data, dataset.target, test_size=0.2) # 20% test data.
-
+    
     training_dataset = pd.read_parquet(train)
     x_train = training_dataset['text']
     y_train = training_dataset['label']
