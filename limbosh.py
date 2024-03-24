@@ -5,60 +5,36 @@ Authors:
 Since:
     28/02/2023
 """
+from kink import di
+from logging import Logger, getLogger
 
-import json
-from typing import List
-
-from llm.large_language_model import LargeLanguageModel, ChatMessage
+from config.config_provider import ConfigProvider
+from config.config_validator import ConfigValidator
+from config.file_based_config_provider import FileBasedConfigProvider
+from config.json_schema_config_validator import JsonSchemaConfigValidator
+from input_guards.input_guard_factory import InputGuardFactory
+from input_transformers.input_transformer_factory import InputTransformerFactory
 from llm.large_language_model_factory import LargeLanguageModelFactory
+from output_transformers.output_transformer_factory import OutputTransformerFactory
+from prompting.prompt_factory import PromptFactory
+from shell.shell import Shell
 
 
-# Read config file.
-config = None
-with open('config.json') as file:
-    config = json.load(file)
+# Initialize config file paths.
+di['config_json_schema_file_path'] = './config.schema.json'
+di['config_file_path'] = './config.json'
 
-# Create LLM instance.
-llm: LargeLanguageModel = LargeLanguageModelFactory.get(config)
+# Create application logger.
+di[Logger] = getLogger(__name__)
 
-# Persist messages in context.
-context: List[ChatMessage] = []
+# Register all injected services.
+di[ConfigValidator] = JsonSchemaConfigValidator()
+di[ConfigProvider] = FileBasedConfigProvider()
+di[InputTransformerFactory] = InputTransformerFactory()
+di[InputGuardFactory] = InputGuardFactory()
+di[LargeLanguageModelFactory] = LargeLanguageModelFactory()
+di[OutputTransformerFactory] = OutputTransformerFactory()
+di[PromptFactory] = PromptFactory()
 
-    
-def push_context (content: str):
-    """ Pushes an additional content message to the LLM context.
-    
-    Args:
-        content (str): The content to push.
-    Returns:
-        str: The LLM's latest response.
-    """
-    context.append(ChatMessage('user', content)) # Push content in role of user.
-    response = llm.get_next_message(context) # Get LLM response.
-    context.append(response) # Push LLM response to context.
-    return response.content
-
-
-# Add system prompt. This should give us a shell prompt.
-prompt = None
-with open(config['system_prompt']) as file:
-    prompt = push_context(file.read()).strip('` ')
-
-
-# Loop as a shell until the user exits.
-buffer = input(f'{prompt} ')
-while buffer != "exit":
-    
-    # Get LLM response to what's in the buffer.
-    reply = push_context(buffer).strip(' `\n\r')
-    reply_lines = reply.split('\n')
-    
-    # Reply may simply be a prompt, in which case update the prompt.
-    if reply.endswith(('#', '$')):
-        # Ask for more input using the prompt.
-        prompt = reply_lines[-1].strip(' `\n\r')
-        reply_exluding_prompt = "\n".join(reply_lines[:-1])
-        buffer = input(f'{reply_exluding_prompt}\n{prompt} ')
-    else:
-        # Print reply then ask for more input using the prompt.
-        buffer = input(f'{reply}\n{prompt} ')
+# Initialize and run generative honeypot shell.
+di[Shell].run()

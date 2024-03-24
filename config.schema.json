@@ -1,0 +1,88 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+        "model_name": {
+            "type": "string"
+        },
+        "openai_api_key": {
+            "type": "string"
+        },
+        "shell": {
+            "type": "string"
+        },
+        "input_guards": {
+            "type": "array",
+            "items": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "string"
+                }
+            ]
+        },
+        "input_transformers": {
+            "type": "array",
+            "items": [
+                {
+                    "type": "string"
+                }
+            ]
+        },
+        "output_transformers": {
+            "type": "array",
+            "items": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "string"
+                }
+            ]
+        },
+        "prompt": {
+            "type": "object",
+            "properties": {
+                "hostname": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "hostname",
+                "username"
+            ]
+        },
+        "ollama": {
+            "type": "object",
+            "properties": {
+                "hostname": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "hostname",
+                "port"
+            ]
+        }
+    },
+    "required": [
+        "model_name",
+        "openai_api_key",
+        "shell",
+        "input_guards",
+        "input_transformers",
+        "output_transformers",
+        "prompt",
+        "ollama"
+    ]
+}

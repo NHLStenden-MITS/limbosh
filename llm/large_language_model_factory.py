@@ -1,40 +1,57 @@
 from typing import Dict
 
+from kink import inject
+
+from config.config_provider import ConfigProvider
 from llm.ollama_large_language_model import OllamaLargeLanguageModel
 from llm.openai_large_language_model import OpenaiLargeLanguageModel
 
 
+@inject
 class LargeLanguageModelFactory():
-    """ A static factory for creating large language model (LLM) instances depending on application-level configuration.
+    """ A factory for creating large language model (LLM) instances depending on application-level configuration.
     """
 
-    @staticmethod
-    def get(configuration: Dict[str, str]):
-        """ Returns a newly-constructed large language model (LLM) based on the application configuration passed.
+    ollama_models = [
+        'openchat',
+        'gemma',
+        'mistral',
+        'llama2',
+        'tinyllama',
+        'qwen',
+        'mixtral',
+    ]
+    """ The names of all Ollama models supported by the application.
+    """
+
+    openai_models = [
+        'gpt-3.5-turbo',
+        'gpt-4'
+    ]
+    """ The names of all OpenAI models supported by the application.
+    """
+
+    def __init__(self, config_provider: ConfigProvider):
+        """ Initializes a new instance of a factory for creating large language model (LLM) instances depending on application-level configuration.
 
         Args:
-            configuration (Dict[str, str]): The application configuration dictionary.
+            config_provider (ConfigProvider): The application-level configuration provider.
+        """
+        self.config = config_provider.get()
+    
+    def get(self):
+        """ Returns a newly-constructed large language model (LLM) based on the application configuration passed.
+        
         Returns:
             LargeLanguageModel: The newly-constructed LLM.
         """
-        model_name = configuration['model_name']
-        if model_name == 'openchat':
+        if self.config.model_name in LargeLanguageModelFactory.ollama_models:
             return OllamaLargeLanguageModel(
-                hostname=configuration['ollama']['hostname'], 
-                port=configuration['ollama']['port'],
-                model='openchat')
-        if model_name == 'gemma':
-            return OllamaLargeLanguageModel(
-                hostname=configuration['ollama']['hostname'], 
-                port=configuration['ollama']['port'],
-                model='gemma')
-        if model_name == 'llama2':
-            return OllamaLargeLanguageModel(
-                hostname=configuration['ollama']['hostname'], 
-                port=configuration['ollama']['port'],
-                model='llama2')
-        if model_name == 'gpt-3.5-turbo':
-            return OpenaiLargeLanguageModel(model='gpt-3.5-turbo')
-        if model_name == 'gpt-4':
-            return OpenaiLargeLanguageModel(model='gpt-4')
-        raise NameError(f'Model "{model_name}" unknown or not supported.')
+                hostname=self.config.ollama.hostname, 
+                port=self.config.ollama.port, 
+                model=self.config.model_name)
+        if self.config.model_name in LargeLanguageModelFactory.openai_models:
+            return OpenaiLargeLanguageModel(
+                api_key=self.config.openai_api_key, 
+                model=self.config.model_name)
+        raise NameError(f'Model "{self.config.model_name}" unknown or not supported.')

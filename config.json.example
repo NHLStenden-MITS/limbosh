@@ -1,7 +1,14 @@
 {
-    "model_name": "openchat",
+    "model_name": "gpt-4",
     "openai_api_key": "<your_api_key_here>",
-    "system_prompt": "system_prompts/high_value_maritime_system.txt",
+    "shell": "bash",
+    "input_guards": ["empty", "exit", "clear"],
+    "input_transformers": ["delimiting"],
+    "output_transformers": ["stripping", "line_breaking"],
+    "prompt": {
+        "hostname": "port-control",
+        "username": "admin"
+    },
     "ollama": {
         "hostname": "localhost",
         "port": 11434
