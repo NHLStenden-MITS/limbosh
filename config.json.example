@@ -4,6 +4,7 @@
     "shell": "bash",
     "input_guards": ["empty", "exit", "clear"],
     "input_transformers": ["delimiting"],
+    "output_guards": [],
     "output_transformers": ["stripping", "line_breaking"],
     "prompt": {
         "hostname": "port-control",
