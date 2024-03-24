@@ -5,110 +5,32 @@ Authors:
 Since:
     28/02/2023
 """
+from kink import di
+from logging import Logger, getLogger
 
-import os
-import platform
-from string import Template
-import json
-from typing import List
-from input_guards.input_guard import InputGuard, InputGuardFinding
+from config.config_provider import ConfigProvider
+from config.config_validator import ConfigValidator
+from config.file_based_config_provider import FileBasedConfigProvider
+from config.json_schema_config_validator import JsonSchemaConfigValidator
 from input_guards.input_guard_factory import InputGuardFactory
-from input_transformers.input_transformer import InputTransformer
 from input_transformers.input_transformer_factory import InputTransformerFactory
-
-from llm.large_language_model import LargeLanguageModel, ChatMessage
 from llm.large_language_model_factory import LargeLanguageModelFactory
-from output_transformers.output_transformer import OutputTransformer
 from output_transformers.output_transformer_factory import OutputTransformerFactory
+from prompting.prompt_factory import PromptFactory
+from shell.shell import Shell
 
 
-# Read config file.
-config = None
-with open('config.json') as file:
-    config = json.load(file)
+di['config_json_schema_file_path'] = './config.schema.json'
+di['config_file_path'] = './config.json'
 
-# Maintain shell prompt.
-prompt: str | None = None
+di[Logger] = getLogger(__name__)
 
-# Create LLM instance.
-llm: LargeLanguageModel = LargeLanguageModelFactory.get(config)
+di[ConfigValidator] = JsonSchemaConfigValidator()
+di[ConfigProvider] = FileBasedConfigProvider()
+di[InputTransformerFactory] = InputTransformerFactory()
+di[InputGuardFactory] = InputGuardFactory()
+di[LargeLanguageModelFactory] = LargeLanguageModelFactory()
+di[OutputTransformerFactory] = OutputTransformerFactory()
+di[PromptFactory] = PromptFactory()
 
-# Input guards.
-input_guard: InputGuard = InputGuardFactory.get(config)
-
-# Input transformers.
-input_transformer: InputTransformer = InputTransformerFactory.get(config)
-
-# Output transformers.
-def update_prompt (new_prompt: str):
-    """ An event handler invoked by the prompt capturing output transformer when the prompt changes.
-
-    Args:
-        new_prompt (str): The new prompt.
-    """
-    global prompt
-    prompt = new_prompt
-output_transformer: OutputTransformer = OutputTransformerFactory.get(config, prompt_changed_callback=update_prompt)
-
-# Persist messages in context.
-context: List[ChatMessage] = []
-
-    
-def push_context (content: str, transform_input: bool = True, transform_output = True):
-    """ Pushes an additional content message to the LLM context.
-    
-    Args:
-        content (str): The content to push.
-        transform_input (bool): Whether to transform the content prior to pushing it to the context (default true).
-        transform_output (bool): Whether to transform LLM output prior to pushing it to the context (default true).
-    Returns:
-        str: The LLM's latest response.
-    """
-    # Transform input if specified.
-    final_content = input_transformer.transform(content) if transform_input else content
-
-     # Push content in role of user.
-    context.append(ChatMessage('user', final_content))
-
-    # Get LLM response.
-    response = llm.get_next_message(context)
-
-    # Transform output if specified.
-    if transform_output:
-        response.content = output_transformer.transform(response.content)
-
-    # Push LLM response to context and return.
-    context.append(response)
-    return response.content
-
-
-# Input system prompt.
-with open(config['system_prompt']) as file:
-    template = Template(file.read())
-    filled_prompt = template.substitute(config['prompt']) # Substitute template variables.
-    push_context(filled_prompt, transform_input=False)
-
-
-# Loop as a shell until the user exits.
-while True:
-
-    # Print output (if any) and read next command into buffer.
-    buffer = input(f'{prompt} ')
-    
-    # Run input through guard.
-    input_guard_finding = input_guard.detect(buffer)
-    if input_guard_finding == InputGuardFinding.OK:
-
-        # Get LLM response to what's in the buffer.
-        print(push_context(buffer), end='')
-    elif input_guard_finding == InputGuardFinding.SPECIAL_COMMAND_EXIT:
-
-        # Break out of loop (program will terminate).
-        break
-    elif input_guard_finding == InputGuardFinding.SPECIAL_COMMAND_CLEAR:
-
-        # Clear terminal (platform-dependent).
-        if platform.system() == 'Windows':
-            os.system('cls')
-        else:
-            os.system('clear')
+di[Shell].run()

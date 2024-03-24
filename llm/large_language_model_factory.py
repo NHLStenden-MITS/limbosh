@@ -1,11 +1,15 @@
 from typing import Dict
 
+from kink import inject
+
+from config.config_provider import ConfigProvider
 from llm.ollama_large_language_model import OllamaLargeLanguageModel
 from llm.openai_large_language_model import OpenaiLargeLanguageModel
 
 
+@inject
 class LargeLanguageModelFactory():
-    """ A static factory for creating large language model (LLM) instances depending on application-level configuration.
+    """ A factory for creating large language model (LLM) instances depending on application-level configuration.
     """
 
     ollama_models = [
@@ -27,23 +31,27 @@ class LargeLanguageModelFactory():
     """ The names of all OpenAI models supported by the application.
     """
 
-    @classmethod
-    def get(cls, configuration: Dict[str, str]):
-        """ Returns a newly-constructed large language model (LLM) based on the application configuration passed.
+    def __init__(self, config_provider: ConfigProvider):
+        """ Initializes a new instance of a factory for creating large language model (LLM) instances depending on application-level configuration.
 
         Args:
-            configuration (Dict[str, str]): The application configuration dictionary.
+            config_provider (ConfigProvider): The application-level configuration provider.
+        """
+        self.config = config_provider.get()
+    
+    def get(self):
+        """ Returns a newly-constructed large language model (LLM) based on the application configuration passed.
+        
         Returns:
             LargeLanguageModel: The newly-constructed LLM.
         """
-        model_name = configuration['model_name']
-        if model_name in cls.ollama_models:
+        if self.config.model_name in LargeLanguageModelFactory.ollama_models:
             return OllamaLargeLanguageModel(
-                hostname=configuration['ollama']['hostname'], 
-                port=configuration['ollama']['port'],
-                model=model_name)
-        if model_name in cls.openai_models:
+                hostname=self.config.ollama.hostname, 
+                port=self.config.ollama.port, 
+                model=self.config.model_name)
+        if self.config.model_name in LargeLanguageModelFactory.openai_models:
             return OpenaiLargeLanguageModel(
-                api_key=configuration['openai_api_key'], 
-                model=model_name)
-        raise NameError(f'Model "{model_name}" unknown or not supported.')
+                api_key=self.config.openai_api_key, 
+                model=self.config.model_name)
+        raise NameError(f'Model "{self.config.model_name}" unknown or not supported.')
