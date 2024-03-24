@@ -170,5 +170,4 @@ config.json
 
 # Data
 *.parquet
-*.model
 *.pickle
