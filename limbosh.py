@@ -27,5 +27,10 @@ di[Logger] = getLogger(__name__)
 
 di[ConfigValidator] = JsonSchemaConfigValidator()
 di[ConfigProvider] = FileBasedConfigProvider()
+di[InputTransformerFactory] = InputTransformerFactory()
+di[InputGuardFactory] = InputGuardFactory()
+di[LargeLanguageModelFactory] = LargeLanguageModelFactory()
+di[OutputTransformerFactory] = OutputTransformerFactory()
+di[PromptFactory] = PromptFactory()
 
 di[Shell].run()
