@@ -56,6 +56,10 @@ class Config():
     """ The input transformers to use between the user and the LLM.
     """
     
+    output_guards: List[Literal['passthrough']]
+    """ The input guards to use between the LLM and the user.
+    """
+    
     output_transformers: List[Literal['stripping', 'line_breaking']]
     """ The output transformers to use between the LLM and the user.
     """
