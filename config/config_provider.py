@@ -44,7 +44,7 @@ class Config():
     """ The OpenAI API key to use to access GPT models.
     """
     
-    shell: Literal['bash']
+    shell: str
     """ The type of shell to mimic.
     """
     

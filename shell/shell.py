@@ -1,6 +1,7 @@
 from abc import ABC
 import os
 import platform
+import sys
 from typing import List
 
 from kink import inject
@@ -89,8 +90,8 @@ class Shell():
                 print(self.push_context(buffer), end='')
             elif input_guard_finding == InputGuardFinding.SPECIAL_COMMAND_EXIT:
 
-                # Break out of loop (program will terminate).
-                break
+                # Terminate program.
+                sys.exit(0)
             elif input_guard_finding == InputGuardFinding.SPECIAL_COMMAND_CLEAR:
 
                 # Clear terminal (platform-dependent).
