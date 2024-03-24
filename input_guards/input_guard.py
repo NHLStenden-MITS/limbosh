@@ -23,6 +23,10 @@ class InputGuardFinding(Enum):
     """ Indicates that the input guard was provided with an empty command.
     """
 
+    PROBABLE_PROMPT_INJECTION = 4
+    """ Indicates that the input guard has detected a probable prompt injection attack.
+    """
+
 
 class InputGuard(ABC):
     """ Represents an abstract input guard.
@@ -30,6 +34,9 @@ class InputGuard(ABC):
     
     def __init__(self, next: Optional['InputGuard'] = None):
         """ Abstract constructor for an input guard.
+
+        Args:
+            next (Optional['InputGuard']): The next link in the input guard chain (if any).
         """
         self.next = next
         

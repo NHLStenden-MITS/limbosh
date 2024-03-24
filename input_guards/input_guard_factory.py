@@ -9,6 +9,7 @@ from input_guards.empty_input_guard import EmptyInputGuard
 from input_guards.exit_input_guard import ExitInputGuard
 from input_guards.input_guard import InputGuard
 from input_guards.passthrough_input_guard import PassthroughInputGuard
+from input_guards.text_classifier_input_guard import TextClassifierInputGuard
 
 
 @inject
@@ -25,11 +26,11 @@ class InputGuardFactory():
         self.config = config_provider.get()
 
     @staticmethod
-    def construct(input_guard_type: Literal['passthrough', 'empty', 'clear', 'exit']) -> InputGuard:
+    def construct(input_guard_type: Literal['passthrough', 'empty', 'clear', 'exit', 'text_classifier']) -> InputGuard:
         """ Constructs an input guard based on its type token.
 
         Args:
-            input_guard_type (Literal['passthrough', 'empty', 'clear', 'exit']): The type token of the desired input guard.
+            input_guard_type (Literal['passthrough', 'empty', 'clear', 'exit', 'text_classifier']): The type token of the desired input guard.
         Returns:
             InputGuard: An instance of the desired input guard.
         """
@@ -41,6 +42,8 @@ class InputGuardFactory():
             return ClearInputGuard()
         if input_guard_type == 'exit':
             return ExitInputGuard()
+        if input_guard_type == 'text_classifier':
+            return TextClassifierInputGuard()
         raise NameError(f'Input guard "{input_guard_type}" unknown or not supported.')
 
     def get(self):
