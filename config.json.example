@@ -2,7 +2,7 @@
     "model_name": "gpt-4",
     "openai_api_key": "<your_api_key_here>",
     "shell": "bash",
-    "prompt_compression_threshold": 8192,
+    "context_compression_threshold": 8192,
     "input_guards": ["empty", "exit", "clear"],
     "input_transformers": ["delimiting"],
     "output_guards": [],

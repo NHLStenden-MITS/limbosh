@@ -48,7 +48,7 @@ class Config():
     """ The type of shell to mimic.
     """
 
-    prompt_compression_threshold: int
+    context_compression_threshold: int
     """ The threshold (in tokens) at which to initiate prompt compression (set to 0 to dissble prompt compression).
     """
     

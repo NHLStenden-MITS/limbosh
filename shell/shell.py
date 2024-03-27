@@ -150,7 +150,6 @@ class Shell():
                 # Do not allow dangerous input to proceed to LLM.
                 print(f'{buffer.split(' ')[0]}: Command not found')
 
-            if self._estimate_tokens() > 512:
-                print("oldlen:", self._estimate_tokens())
+            # Compress context.
+            if self._estimate_tokens() > self.config_provider.context_compression_threshold:
                 self.context = self.context_compressor.compress(self.context)
-                print("newlen:", self._estimate_tokens())
