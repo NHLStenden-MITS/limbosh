@@ -1,3 +1,4 @@
+import sys
 from typing import Literal
 from urllib.request import urlopen
 
@@ -26,7 +27,7 @@ class OllamaLargeLanguageModel(OpenaiLargeLanguageModel):
         except:
             return False
     
-    def __init__(self, hostname='localhost', port=11434, temperature=0.0001, model: Literal["llama2", "openchat", "gemma", "mistral"] = "openchat"):
+    def __init__(self, hostname='localhost', port=11434, temperature=0, model: Literal["llama2", "openchat", "gemma", "mistral"] = "openchat"):
         """ Initializes a new instance of a large language model (LLM) hosted locally on Ollama.
         
         Args:
