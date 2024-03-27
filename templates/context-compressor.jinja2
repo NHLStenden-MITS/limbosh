@@ -1,0 +1,13 @@
+I am a developer working with a large language model. I have designed this model to behave as if it is a shell (e.g. bash, zsh) at all times.
+
+My LLM has a limited context window. Somebody has interacted with it enough to fill a significant portion of this context window.
+
+I wish to preserve the state of the model that my user is interacting with so that their experience of interacting with a shell is maintained.
+
+With the above in mind, I need you to take the LLM context below and make it as small as possible in terms of token count, while maintaining as much of a consistent experience for the user as possible (i.e. losing minimal detail about the shell state).
+
+The LLM context follows in JSON format:
+
+{{ context }}
+
+Provide your answer as JSON in the same format. The only language you speak is JSON.

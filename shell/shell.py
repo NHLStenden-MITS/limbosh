@@ -9,6 +9,7 @@ from config.config_provider import ConfigProvider
 from input_guards.input_guard import InputGuardFinding
 from input_guards.input_guard_factory import InputGuardFactory
 from input_transformers.input_transformer_factory import InputTransformerFactory
+from llm.context_compressor import ContextCompressor
 from llm.large_language_model import ChatMessage
 from llm.large_language_model_factory import LargeLanguageModelFactory
 from output_guards.output_guard import OutputGuardFinding
@@ -26,6 +27,7 @@ class Shell():
             self,
             config_provider: ConfigProvider,
             large_language_model_factory: LargeLanguageModelFactory, 
+            context_compressor: ContextCompressor,
             prompt_factory: PromptFactory,
             input_guard_factory: InputGuardFactory, 
             input_transformer_factory: InputTransformerFactory,
@@ -36,6 +38,7 @@ class Shell():
         Args:
             config_provider (ConfigProvider): The application-level configuration provider.
             large_language_model_factory (LargeLanguageModelFactory): The LLM factory to use to generate an LLM instance.
+            context_compressor (ContextCompressor): The context compressor to use to expand the functional context window width of the LLM.
             prompt_factory (PromptFactory): The prompt factory to use to generate the system prompt.
             input_guard_factory (InputGuardFactory): The input guard factory to generate an input guard for the LLM.
             input_transformer_factory (InputGuardFactory): The input transformer factory to generate an input transformer for the LLM.
@@ -44,6 +47,7 @@ class Shell():
         """
         self.config_provider = config_provider.get()
         self.large_language_model = large_language_model_factory.get()
+        self.context_compressor = context_compressor
         self.system_prompt = prompt_factory.get(self.config_provider.shell)
         self.input_guard = input_guard_factory.get()
         self.input_transformer = input_transformer_factory.get()
@@ -56,6 +60,16 @@ class Shell():
         # Initialize context to empty.
         context: List[ChatMessage] = []
         self.context = context
+
+    def _estimate_tokens (self) -> int:
+        """ Provides a rough estimate of the number of tokens in the shell's context window.
+
+        Uses the algorithm here: https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them
+        
+        Returns:
+            int: The estimated number of tokens in the shell's context window.
+        """
+        return sum([len(message.content) for message in self.context]) // 4
 
     def push_context (self, content: str, transform_input: bool = True, transform_output = True):
         """ Pushes an additional content message to the LLM context.
@@ -135,3 +149,8 @@ class Shell():
 
                 # Do not allow dangerous input to proceed to LLM.
                 print(f'{buffer.split(' ')[0]}: Command not found')
+
+            if self._estimate_tokens() > 512:
+                print("oldlen:", self._estimate_tokens())
+                self.context = self.context_compressor.compress(self.context)
+                print("newlen:", self._estimate_tokens())

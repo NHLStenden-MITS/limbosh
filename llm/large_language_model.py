@@ -2,7 +2,10 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Iterable, Literal
 
+from dataclasses_json import dataclass_json
 
+
+@dataclass_json
 @dataclass
 class ChatMessage():
     """ Represents a chat message exchanged with an LLM.

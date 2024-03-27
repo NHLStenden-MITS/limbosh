@@ -47,6 +47,10 @@ class Config():
     shell: str
     """ The type of shell to mimic.
     """
+
+    prompt_compression_threshold: int
+    """ The threshold (in tokens) at which to initiate prompt compression (set to 0 to dissble prompt compression).
+    """
     
     input_guards: List[Literal['passthrough', 'empty', 'exit', 'clear']]
     """ The input guards to use between the user and the LLM.

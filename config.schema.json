@@ -11,6 +11,9 @@
         "shell": {
             "type": "string"
         },
+        "prompt_compression_threshold": {
+            "type": "integer"
+        },
         "input_guards": {
             "type": "array",
             "items": [

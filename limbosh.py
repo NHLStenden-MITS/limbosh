@@ -14,6 +14,8 @@ from config.file_based_config_provider import FileBasedConfigProvider
 from config.json_schema_config_validator import JsonSchemaConfigValidator
 from input_guards.input_guard_factory import InputGuardFactory
 from input_transformers.input_transformer_factory import InputTransformerFactory
+from llm.built_in_context_compressor import BuiltInContextCompressor
+from llm.context_compressor import ContextCompressor
 from llm.large_language_model_factory import LargeLanguageModelFactory
 from output_guards.output_guard_factory import OutputGuardFactory
 from output_transformers.output_transformer_factory import OutputTransformerFactory
@@ -31,6 +33,7 @@ di[Logger] = getLogger(__name__)
 # Register all injected services.
 di[ConfigValidator] = JsonSchemaConfigValidator()
 di[ConfigProvider] = FileBasedConfigProvider()
+di[ContextCompressor] = BuiltInContextCompressor()
 di[InputTransformerFactory] = InputTransformerFactory()
 di[InputGuardFactory] = InputGuardFactory()
 di[LargeLanguageModelFactory] = LargeLanguageModelFactory()
