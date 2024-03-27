@@ -49,7 +49,7 @@ class Config():
     """
 
     context_compression_threshold: int
-    """ The threshold (in tokens) at which to initiate prompt compression (set to 0 to dissble prompt compression).
+    """ The threshold (in tokens) at which to initiate context compression (set to 0 to dissble context compression).
     """
     
     input_guards: List[Literal['passthrough', 'empty', 'exit', 'clear']]
