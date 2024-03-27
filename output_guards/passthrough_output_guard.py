@@ -5,6 +5,6 @@ class PassthroughOutputGuard(OutputGuard):
     """ An output guard that always lets LLM output through.
     """
 
-    def _detect(self, message_content: str) -> bool:
+    def _detect (self, input_message_content: str, output_message_content: str) -> OutputGuardFinding:
         return OutputGuardFinding.OK
     

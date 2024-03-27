@@ -111,7 +111,7 @@ class Shell():
 
                 # Get LLM response to what's in the buffer.
                 output = self.push_context(buffer)
-                output_guard_finding = self.output_guard.detect(output) # Run through output guard.
+                output_guard_finding = self.output_guard.detect(buffer, output) # Run through output guard.
                 if output_guard_finding == OutputGuardFinding.OK:
 
                     # All OK, print output.

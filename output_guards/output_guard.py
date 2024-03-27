@@ -29,33 +29,35 @@ class OutputGuard(ABC):
         self.next = next
         
     @abstractmethod
-    def _detect (self, message_content: str) -> OutputGuardFinding:
+    def _detect (self, input_message_content: str, output_message_content: str) -> OutputGuardFinding:
         """ Uses this output guard to check the given message.
         
         Override this method, rather than `detect`, in concrete implementations of this class.
         
         Args:
-            message_content (str): The message content to check.
+            input_message_content (str): The input message content that prompted the output.
+            output_message_content (str): The output message content to check.
         Returns:
             OutputGuardFinding: The finding of the output guard.
         """
         raise NotImplementedError("Cannot use an abstract output guard.")
 
-    def detect (self, message_content: str) -> OutputGuardFinding:
+    def detect (self, input_message_content: str, output_message_content: str) -> OutputGuardFinding:
         """ Uses the output guard to check the given message.
         
         This method implementes a chain of responsibility pattern and should not be overridden. Override `_detect` instead.
         
         Args:
-            message_content (str): The message content to check.
+            input_message_content (str): The input message content that prompted the output.
+            output_message_content (str): The output message content to check.
         Returns:
             OutputGuardFinding: The finding of the output guard.
         """
         # Run own detect function.
-        result = self._detect(message_content)
+        result = self._detect(input_message_content, output_message_content)
         if result != OutputGuardFinding.OK:
             return result
         
         # Delegate to next link in chain-of-responsibility (if any).
-        return OutputGuardFinding.OK if self.next == None else self.next.detect(message_content)
+        return OutputGuardFinding.OK if self.next == None else self.next.detect(input_message_content, output_message_content)
     
