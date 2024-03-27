@@ -1,4 +1,3 @@
-from abc import ABC, abstractmethod
 import json
 from typing import Iterable, List
 
@@ -12,23 +11,33 @@ from prompting.prompt_factory import PromptFactory
 
 @inject
 class BuiltInContextCompressor(ContextCompressor):
+    """ Represents a context compressor that uses the configured LLM.
+    """
     
-    def __init__(self, prompt_factory: PromptFactory, large_language_model_factory: LargeLanguageModelFactory):
+    def __init__ (self, prompt_factory: PromptFactory, large_language_model_factory: LargeLanguageModelFactory):
+        """ Initializes a new instance of a context compressor that uses the configured LLM.
+
+        Args:
+            prompt_factory (PromptFactory): The prompt factory to use to generate the system prompt.
+            large_language_model_factory (LargeLanguageModelFactory): The LLM factory to use to generate an LLM instance.
+        """
         self.prompt_factory = prompt_factory
         self.large_language_model = large_language_model_factory.get()
         
     def compress (self, chat_messages: Iterable[ChatMessage]) -> Iterable[ChatMessage]:
         compression_prompt = self.prompt_factory.get('context-compressor', {
-            'context': json.dumps([c.to_dict() for c in chat_messages])
+            'context': json.dumps([chat_message.to_dict() for chat_message in chat_messages])
         })
 
         # Pass to LLM.
         result = self.large_language_model.get_next_message([ChatMessage('user', compression_prompt)]).content
-        print(result)
         
-        jj = json.loads(result)
-        cms: List[ChatMessage] = []
-        for d in jj:
-            cms.append(ChatMessage.from_dict(d))
-        return cms
+        # Parse raw compressed context.
+        compressed_context_json = json.loads(result)
+        compressed_chat_messages: List[ChatMessage] = []
+        for compressed_chat_message_json in compressed_context_json:
+            compressed_chat_messages.append(ChatMessage.from_dict(compressed_chat_message_json))
+
+        # Return compressed context.
+        return compressed_chat_messages
     

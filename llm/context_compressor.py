@@ -14,5 +14,12 @@ class ContextCompressor(ABC):
 
     @abstractmethod
     def compress (self, chat_messages: Iterable[ChatMessage]) -> Iterable[ChatMessage]:
+        """ Compresses an LLM context.
+
+        Args:
+            chat_messages (Iterable[ChatMessage]): The chat messages to compress.
+        Returns:
+            Iterable[ChatMessage]: The compressed chat messages.
+        """
         raise NotImplementedError("Cannot use an abstract context compressor.")
 
