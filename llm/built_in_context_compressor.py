@@ -1,5 +1,5 @@
 import json
-from typing import Iterable, List
+from typing import Callable, Iterable, List
 
 from kink import inject
 
@@ -24,7 +24,7 @@ class BuiltInContextCompressor(ContextCompressor):
         self.prompt_factory = prompt_factory
         self.large_language_model = large_language_model_factory.get()
         
-    def compress (self, chat_messages: Iterable[ChatMessage]) -> Iterable[ChatMessage]:
+    def _compress (self, chat_messages: Iterable[ChatMessage], callback: Callable[[Iterable[ChatMessage]], None]):
         compression_prompt = self.prompt_factory.get('context-compressor', {
             'context': json.dumps([chat_message.to_dict() for chat_message in chat_messages])
         })
@@ -37,7 +37,7 @@ class BuiltInContextCompressor(ContextCompressor):
         compressed_chat_messages: List[ChatMessage] = []
         for compressed_chat_message_json in compressed_context_json:
             compressed_chat_messages.append(ChatMessage.from_dict(compressed_chat_message_json))
+        print(compressed_chat_messages)
 
-        # Return compressed context.
-        return compressed_chat_messages
-    
+        # Invoke callback with compressed context.
+        callback(compressed_chat_messages)

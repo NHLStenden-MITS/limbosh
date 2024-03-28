@@ -1,7 +1,8 @@
+from logging import Logger
 import os
 import platform
 import sys
-from typing import List
+from typing import Iterable, List
 
 from kink import inject
 
@@ -32,7 +33,8 @@ class Shell():
             input_guard_factory: InputGuardFactory, 
             input_transformer_factory: InputTransformerFactory,
             output_guard_factory: OutputGuardFactory,
-            output_transformer_factory: OutputTransformerFactory):
+            output_transformer_factory: OutputTransformerFactory,
+            logger: Logger):
         """ Intitializes a new instance of an LLM-powered honeypot shell.
 
         Args:
@@ -53,6 +55,7 @@ class Shell():
         self.input_transformer = input_transformer_factory.get()
         self.output_guard = output_guard_factory.get()
         self.output_transformer = output_transformer_factory.get(lambda new_prompt: self.update_prompt(new_prompt))
+        self.logger = logger
 
         # Set default prompt.
         self.prompt = '$'
@@ -60,6 +63,9 @@ class Shell():
         # Initialize context to empty.
         context: List[ChatMessage] = []
         self.context = context
+
+        # Initialize context compression boundary.
+        self.context_compression_boundary: int | None = None
 
     def _estimate_tokens (self) -> int:
         """ Provides a rough estimate of the number of tokens in the shell's context window.
@@ -106,6 +112,16 @@ class Shell():
         """
         self.prompt = new_prompt
 
+    def _context_compressor_callback (self, chat_messages: Iterable[ChatMessage]):
+        """ A callback invoked by the context compressor when context compression has finished.
+
+        Args:
+            chat_messages (Iterable[ChatMessage]): The compressed chat messages.
+        """
+        self.context = [*chat_messages, *self.context[self.context_compression_boundary + 1:]]
+        self.context_compression_boundary = None
+        self.logger.debug(f'Finished compressing context. Ending length approx. {self._estimate_tokens()} tokens.')
+
     def run(self):
         """ Enters the shell.
         """
@@ -150,6 +166,8 @@ class Shell():
                 # Do not allow dangerous input to proceed to LLM.
                 print(f'{buffer.split(' ')[0]}: Command not found')
 
-            # Compress context.
-            if self._estimate_tokens() > self.config_provider.context_compression_threshold:
-                self.context = self.context_compressor.compress(self.context)
+            # Compress context in background.
+            if self.context_compression_boundary is None and self._estimate_tokens() > self.config_provider.context_compression_threshold:
+                self.logger.debug(f'Compressing context in background. Starting length approx. {self._estimate_tokens()} tokens.')
+                self.context_compression_boundary = len(self.context)
+                self.context_compressor.compress(self.context, self._context_compressor_callback)
