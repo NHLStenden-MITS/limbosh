@@ -46,6 +46,7 @@ class Shell():
             input_transformer_factory (InputGuardFactory): The input transformer factory to generate an input transformer for the LLM.
             output_guard_factory (OutputGuardFactory): The output guard factory to generate an output guard for the LLM.
             output_transformer_factory (OutputTransformerFactory): The output transformer factory to generate an output transformer for the LLM.
+            logger (Logger): The logger to use for this instance.
         """
         self.config_provider = config_provider.get()
         self.large_language_model = large_language_model_factory.get()
@@ -164,7 +165,7 @@ class Shell():
             elif input_guard_finding == InputGuardFinding.PROBABLE_PROMPT_INJECTION:
 
                 # Do not allow dangerous input to proceed to LLM.
-                print(f'{buffer.split(' ')[0]}: Command not found')
+                print(f"{buffer.split(' ')[0]}: Command not found")
 
             # Compress context in background.
             if self.context_compression_boundary is None and self._estimate_tokens() > self.config_provider.context_compression_threshold:

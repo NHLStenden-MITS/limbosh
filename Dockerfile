@@ -7,8 +7,9 @@ RUN apt-get install -y openssh-server python3 python3-pip dos2unix
 # Copy project to container.
 COPY . /etc/limbosh
 
-# Fix line endings in entrypoint files.
+# Fix line endings in entrypoint files, then source files.
 RUN dos2unix /etc/limbosh/limbosh*
+RUN find /etc/limbosh -type f -name '*.py' -print0 | xargs -0 dos2unix --
 
 # Set appropriate permissions, create symlinks, register shell.
 RUN chmod +x /etc/limbosh/limbosh-docker
