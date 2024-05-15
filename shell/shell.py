@@ -68,15 +68,24 @@ class Shell():
         # Initialize context compression boundary.
         self.context_compression_boundary: int | None = None
 
-    def _estimate_tokens (self) -> int:
-        """ Provides a rough estimate of the number of tokens in the shell's context window.
+    @staticmethod
+    def _estimate_tokens_in_str (str) -> int:
+        """ Provides a rough estimate of the number of tokens in a string.
 
         Uses the algorithm here: https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them
         
         Returns:
+            int: The estimated number of tokens in the string provided.
+        """
+        return len(str) // 4
+
+    def _estimate_tokens (self) -> int:
+        """ Provides a rough estimate of the number of tokens in the shell's context window.
+        
+        Returns:
             int: The estimated number of tokens in the shell's context window.
         """
-        return sum([len(message.content) for message in self.context]) // 4
+        return sum([Shell._estimate_tokens_in_str(message.content) for message in self.context]) // 4
 
     def push_context (self, content: str, transform_input: bool = True, transform_output = True):
         """ Pushes an additional content message to the LLM context.
@@ -88,21 +97,29 @@ class Shell():
         Returns:
             str: The LLM's latest response.
         """
+        self.logger.debug(f"Pushing message {len(self.context)} to the context. Message length is approx. {Shell._estimate_tokens_in_str(content)} tokens.")
+
         # Transform input if specified.
-        final_content = self.input_transformer.transform(content) if transform_input else content
+        final_content = content
+        if transform_input:
+            final_content = self.input_transformer.transform(content)
+            self.logger.debug(f"Message transformed to contain approx. {Shell._estimate_tokens_in_str(final_content)} tokens.")
 
         # Push content in role of user.
         self.context.append(ChatMessage('user', final_content))
 
         # Get LLM response.
         response = self.large_language_model.get_next_message(self.context)
+        self.logger.debug(f"LLM responded with approx. {Shell._estimate_tokens_in_str(response.content)} tokens.")
 
         # Transform output if specified.
         if transform_output:
             response.content = self.output_transformer.transform(response.content)
+            self.logger.debug(f"LLM output transformed to contain approx. {Shell._estimate_tokens_in_str(response.content)} tokens.")
 
         # Push LLM response to context and return.
         self.context.append(response)
+        self.logger.debug(f"Context size now stands at approx. {self._estimate_tokens()} tokens.")
         return response.content
 
     def update_prompt (self, new_prompt: str):

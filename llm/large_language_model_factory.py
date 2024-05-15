@@ -17,6 +17,7 @@ class LargeLanguageModelFactory():
         'gemma',
         'mistral',
         'llama2',
+        'llama3',
         'tinyllama',
         'qwen',
         'mixtral',
@@ -26,7 +27,8 @@ class LargeLanguageModelFactory():
 
     openai_models = [
         'gpt-3.5-turbo',
-        'gpt-4'
+        'gpt-4',
+        'gpt-4o'
     ]
     """ The names of all OpenAI models supported by the application.
     """

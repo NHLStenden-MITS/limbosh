@@ -10,7 +10,7 @@ class OpenaiLargeLanguageModel(LargeLanguageModel):
     """ Represents an OpenAI large language model (LLM).
     """
     
-    def __init__(self, api_key: str, temperature=0, model: Literal["gpt-3.5-turbo", "gpt-4"] = "gpt-4"):
+    def __init__(self, api_key: str, temperature=0, model: Literal["gpt-3.5-turbo", "gpt-4", "gpt-4o"] = "gpt-4"):
         """ Initializes a new instance of an OpenAI large language model (LLM).
         
         Args:

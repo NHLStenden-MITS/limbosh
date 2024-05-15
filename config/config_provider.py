@@ -29,10 +29,12 @@ class Config():
     model_name: Literal[
         'gpt-3.5-turbo',
         'gpt-4',
+        'gpt-4o',
         'openchat',
         'gemma',
         'mistral',
         'llama2',
+        'llama3',
         'tinyllama',
         'qwen',
         'mixtral'
