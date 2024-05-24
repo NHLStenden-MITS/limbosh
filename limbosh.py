@@ -19,6 +19,7 @@ from input_transformers.input_transformer_factory import InputTransformerFactory
 from llm.built_in_context_compressor import BuiltInContextCompressor
 from llm.context_compressor import ContextCompressor
 from llm.large_language_model_factory import LargeLanguageModelFactory
+from llm.passthrough_context_compressor import PassthroughContextCompressor
 from output_guards.output_guard_factory import OutputGuardFactory
 from output_transformers.output_transformer_factory import OutputTransformerFactory
 from prompting.prompt_factory import PromptFactory
@@ -39,7 +40,7 @@ di[logging.Logger] = logging.getLogger(__name__)
 # Register all injected services.
 di[ConfigValidator] = JsonSchemaConfigValidator()
 di[ConfigProvider] = FileBasedConfigProvider()
-di[ContextCompressor] = BuiltInContextCompressor()
+di[ContextCompressor] = PassthroughContextCompressor()
 di[InputTransformerFactory] = InputTransformerFactory()
 di[InputGuardFactory] = InputGuardFactory()
 di[LargeLanguageModelFactory] = LargeLanguageModelFactory()
