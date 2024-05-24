@@ -6,6 +6,7 @@ Since:
     28/02/2023
 """
 import logging
+import readline
 
 from kink import di
 from logstash_async.handler import AsynchronousLogstashHandler
