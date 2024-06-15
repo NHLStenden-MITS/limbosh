@@ -25,5 +25,10 @@ RUN pip install -r requirements.txt
 # Add admin:admin honeypot user with limbosh as shell.
 RUN useradd -rm -d /home/admin -s /usr/bin/limbosh -g root -G sudo -u 1000 admin && echo 'admin:admin' | chpasswd
 
+# Create error log.
+RUN touch error.log
+RUN chown admin error.log
+RUN chmod 777 error.log
+
 # Restart SSH service to enable login and sleep forever.
 CMD limbosh
