@@ -6,10 +6,8 @@ Since:
     28/02/2023
 """
 import logging
-import readline
 
 from kink import di
-from logstash_async.handler import AsynchronousLogstashHandler
 
 from config.config_provider import ConfigProvider
 from config.config_validator import ConfigValidator
@@ -33,10 +31,6 @@ di['config_file_path'] = './config.json'
 
 # Create application logger.
 di[logging.Logger] = logging.getLogger(__name__)
-# elk_logger = logging.getLogger('python-logstash-logger')
-# elk_logger.setLevel(logging.DEBUG)
-# elk_logger.addHandler(AsynchronousLogstashHandler('host.docker.internal', 50000, database_path=None))
-# di[logging.Logger] = elk_logger
 
 # Register all injected services.
 di[ConfigValidator] = JsonSchemaConfigValidator()
