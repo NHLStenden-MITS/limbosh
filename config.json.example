@@ -1,6 +1,7 @@
 {
-    "model_name": "gpt-4",
-    "openai_api_key": "<your_api_key_here>",
+    "model_name": "openchat",
+    "openai_api_key": "not-needed-for-local-llms",
+    "system_prompt": "system_prompts/high_value_maritime_system.txt",
     "shell": "bash",
     "context_compression_threshold": 8192,
     "input_guards": ["empty", "exit", "clear"],
