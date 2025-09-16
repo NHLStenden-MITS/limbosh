@@ -11,8 +11,9 @@ Limbosh is named after the concept of [_Limbo_](https://en.wikipedia.org/wiki/Li
 ## Prerequisites
 To run limbosh out of the box, you'll need a few things set up on your machine first:
 
-* Python 3.10 or higher with `pip`
-* An OpenAI API key (get one [here](https://platform.openai.org))
+* Python 3.10 or higher with `pip`.
+* **Currently only Windows is supported.**
+<!-- * An OpenAI API key (get one [here](https://platform.openai.org))  -->
 
 ## Setup
 First, ensure that you've taken care of the prerequisites above. Then, from the root of the repository, set up a Python virtual environment:
@@ -27,11 +28,11 @@ Then, enter the virtual environment. On Windows, execute the following command i
 ./venv/bin/Activate.ps1
 ```
 
-From bash on Mac or Linux, run:
+<!-- From bash on Mac or Linux, run:
 
 ```bash
 . venv/bin/activate
-```
+``` -->
 
 From here, upgrade `pip` and install dependencies:
 
@@ -41,6 +42,13 @@ pip install -r requirements.txt
 ```
 
 ### Configuring OpenAI Connectivity
+> ⚠️ **Warning:**  
+> OpenAI connectivity is currently **not supported**.  
+> - We don't have an API key at the moment.  
+> - Dependencies likely need updating before integration will work. 
+
+
+<!-- 
 The most performant way to run Limbosh is by outsourcing running the LLM to the OpenAI API.
 
 If you want to do this, you'll need to start by signing in to your [OpenAI platform account](https://platform.openai.com`), charging your account with credits, and creating an API key.
@@ -49,25 +57,25 @@ First, copy the `config.json.example` file to `config.json`. Do not commit thie 
 
 ```bash
 cp config.json.example config.json
-```
-
+``` -->
+<!-- 
 Now, open up `config.json` in your favourite text editor and paste your API key in place of `<your_api_key_here>`. Set the `model` field to either:
 
 * `gpt-3.5-turbo` for GPT 3.5 (faster and cheaper, not as convincing)
 * `gpt-4` for GPT 4.0 (slower and more expensive but with very convincing output)
 
-You're now ready to run the program! Either call the script with Python directly (make sure you're in your virtual environment):
+You're now ready to run the program! Either call the script with Python directly (make sure you're in your virtual environment): -->
 
-```bash
+<!-- ```bash
 python3 limbosh.py
-```
+``` -->
 
-Or alternatively (on Mac or Linux), use the shortcut:
+<!-- Or alternatively (on Mac or Linux), use the shortcut: -->
 
-```bash
+<!-- ```bash
 # chmod u+x limbosh
 ./limbosh
-```
+``` -->
 
 ### Running Against a Local LLM using Ollama
 Limbosh also supports running against local LLMs using [Ollama](https://ollama.com/). To do this, you'll first need to install Ollama and pull your preferred LLM. You can do this like so for `openchat` for example:
