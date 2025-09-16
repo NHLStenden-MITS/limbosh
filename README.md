@@ -44,7 +44,6 @@ pip install -r requirements.txt
 ### Configuring OpenAI Connectivity
 > ⚠️ **Warning:**  
 > OpenAI connectivity is currently **not supported**.  
-> - We don't have an API key at the moment.  
 > - Dependencies likely need updating before integration will work. 
 
 
